@@ -36,31 +36,22 @@ export function useTask() {
     }
   };
 
-  const openEditModal = (id) => {
+  const updateTask = (id, updatedData) => {
     const task = tasks.value.find((t) => t.id === id);
-    if (task) {
-      taskToEdit.value = task;
-      isEditModalOpen.value = true;
-    }
-  };
-
-  const closeEditModal = () => {
-    isEditModalOpen.value = false;
-    taskToEdit.value = null;
-  };
-
-  const saveEditTask = (updatedData) => {
-    const task = tasks.value.find((t) => t.id === updatedData.id);
     if (task) {
       task.text = updatedData.text;
       task.completed = updatedData.completed;
     }
   };
 
+  const getTaskById = (id) => {
+    return tasks.value.find((t) => t.id === id);
+  };
+
   onMounted(() => {
     const saved = localStorage.getItem(TASK_KEY);
     tasks.value = saved ? JSON.parse(saved) : [];
-  })
+  });
 
   return {
     tasks,
@@ -68,11 +59,8 @@ export function useTask() {
     addTask,
     deleteTask,
     changeTask,
-    isEditModalOpen,
-    taskToEdit,
-    openEditModal,
-    closeEditModal,
-    saveEditTask
+    updateTask,
+    getTaskById,
   };
 }
 

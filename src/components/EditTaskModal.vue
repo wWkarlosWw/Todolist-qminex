@@ -1,46 +1,28 @@
 <script setup>
-import { ref, watch } from "vue";
-
 const props = defineProps({
-  task: {
-    type: Object,
-    default: null,
-  },
   isOpen: {
+    type: Boolean,
+    default: false,
+  },
+  editText: {
+    type: String,
+    default: "",
+  },
+  editCompleted: {
     type: Boolean,
     default: false,
   },
 });
 
-const emit = defineEmits(["close", "save"]);
-
-const editText = ref("");
-const editCompleted = ref(false);
-
-watch(
-  () => props.task,
-  (newTask) => {
-    if (newTask) {
-      editText.value = newTask.text;
-      editCompleted.value = newTask.completed;
-    }
-  },
-  { immediate: true }
-);
+const emit = defineEmits([
+  "close",
+  "save",
+  "update:editText",
+  "update:editCompleted",
+]);
 
 const saveChanges = () => {
-  if (editText.value.trim() === "") {
-    alert("El texto no puede estar vacío");
-    return;
-  }
-
-  emit("save", {
-    id: props.task.id,
-    text: editText.value.trim(),
-    completed: editCompleted.value,
-  });
-
-  emit("close");
+  emit("save");
 };
 
 const closeModal = () => {
@@ -55,11 +37,20 @@ const closeModal = () => {
 
       <label>
         Texto:
-        <input v-model="editText" type="text" @keyup.enter="saveChanges" />
+        <input
+          :value="editText"
+          @input="emit('update:editText', $event.target.value)"
+          type="text"
+          @keyup.enter="saveChanges"
+        />
       </label>
 
       <label>
-        <input v-model="editCompleted" type="checkbox" />
+        <input
+          :checked="editCompleted"
+          @change="emit('update:editCompleted', $event.target.checked)"
+          type="checkbox"
+        />
         Completada
       </label>
 

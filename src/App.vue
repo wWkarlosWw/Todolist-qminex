@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import tasklList from "./components/tasklList.vue";
 import { useTask } from "./hooks/useTask";
+import { useModal } from "./hooks/useModal";
 import EditTaskModal from "./components/EditTaskModal.vue";
 
 const {
@@ -10,12 +11,38 @@ const {
   addTask,
   deleteTask,
   changeTask,
+  updateTask,
+  getTaskById,
+} = useTask();
+
+const {
   isEditModalOpen,
   taskToEdit,
+  editText,
+  editCompleted,
   openEditModal,
   closeEditModal,
-  saveEditTask,
-} = useTask();
+  getEditedData,
+} = useModal();
+
+const handleEdit = (id) => {
+  const task = getTaskById(id);
+  if (task) {
+    openEditModal(task);
+  }
+};
+
+const handleSave = () => {
+  const editedData = getEditedData();
+
+  if (editedData.text === "") {
+    alert("El texto no puede estar vacío");
+    return;
+  }
+
+  updateTask(editedData.id, editedData);
+  closeEditModal();
+};
 </script>
 
 <template>
@@ -48,7 +75,7 @@ const {
         :key="task.id"
         :task="task"
         @toggle="changeTask"
-        @edit="openEditModal"
+        @edit="handleEdit"
         @delete="deleteTask"
       />
     </ul>
@@ -57,9 +84,12 @@ const {
 
     <EditTaskModal
       :isOpen="isEditModalOpen"
-      :task="taskToEdit"
+      :editText="editText"
+      :editCompleted="editCompleted"
+      @update:editText="editText = $event"
+      @update:editCompleted="editCompleted = $event"
       @close="closeEditModal"
-      @save="saveEditTask"
+      @save="handleSave"
     />
   </div>
 </template>
