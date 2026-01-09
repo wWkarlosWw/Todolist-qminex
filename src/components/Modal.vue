@@ -1,65 +1,32 @@
 <script setup>
-const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    default: false,
-  },
-  editText: {
-    type: String,
-    default: "",
-  },
-  editCompleted: {
-    type: Boolean,
-    default: false,
-  },
-});
-
-const emit = defineEmits([
-  "close",
-  "save",
-  "update:editText",
-  "update:editCompleted",
-]);
-
-const saveChanges = () => {
-  emit("save");
-};
-
-const closeModal = () => {
-  emit("close");
-};
+defineProps({ isOpen: Boolean, tagElement: String });
+defineEmits(["close"]);
 </script>
 
 <template>
-  <div v-if="isOpen" class="modal" @click="closeModal">
+  <component
+    :is="tagElement || 'div'"
+    v-if="isOpen"
+    class="modal"
+    @click="$emit('close')"
+  >
     <div class="modal-box" @click.stop>
-      <h3>Editar Tarea</h3>
+      <header>
+        <slot name="header"><h3>Título</h3></slot>
+      </header>
 
-      <label>
-        Texto:
-        <input
-          :value="editText"
-          @input="emit('update:editText', $event.target.value)"
-          type="text"
-          @keyup.enter="saveChanges"
-        />
-      </label>
+      <section class="modal-body">
+        <slot></slot>
+      </section>
 
-      <label>
-        <input
-          :checked="editCompleted"
-          @change="emit('update:editCompleted', $event.target.checked)"
-          type="checkbox"
-        />
-        Completada
-      </label>
-
-      <div class="buttons">
-        <button @click="closeModal">Cancelar</button>
-        <button @click="saveChanges">Guardar</button>
-      </div>
+      <footer class="buttons">
+        <button @click.prevent="$emit('close')" class="btn-cancel">
+          Cancelar
+        </button>
+        <slot name="footer"></slot>
+      </footer>
     </div>
-  </div>
+  </component>
 </template>
 
 <style scoped>
@@ -119,6 +86,11 @@ button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.btn-cancel {
+  border-radius: 16px;
+  width: 100px;
 }
 
 button:first-child {

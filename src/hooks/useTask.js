@@ -4,24 +4,27 @@ const TASK_KEY = "tasks"
 
 export function useTask() {
 
-  const newTask2 = ref("");
   const tasks = ref([]);
-
-  const isEditModalOpen = ref(false);
-  const taskToEdit = ref(null);
+  const newTask = ref("");
 
   watch(tasks, (newTasks) => {
     localStorage.setItem(TASK_KEY, JSON.stringify(newTasks));
   }, { deep: true }); 
+  
+  onMounted(() => {
+    const saved = localStorage.getItem(TASK_KEY);
+    tasks.value = saved ? JSON.parse(saved) : [];
+  });
 
-  const addTask = () => {
-    if (newTask2.value.trim() !== "") {
+  const addTask = (e) => {
+    // e.preventDefault()   no refrescar pagina
+    if (newTask.value.trim() !== "") {
       tasks.value.push({
         id: Math.ceil(Math.random() * 1000000),
-        text: newTask2.value,
+        text: newTask.value,
         completed: false,
       });
-      newTask2.value = "";
+      newTask.value = "";
     }
   };
 
@@ -29,40 +32,27 @@ export function useTask() {
     tasks.value = tasks.value.filter((task) => task.id !== id);
   };
 
-  const changeTask = (id) => {
-    const task = tasks.value.find((t) => t.id === id);
-    if (task) {
-      task.completed = !task.completed;
+const updateTask = (id, updatedData) => {
+    const index = tasks.value.findIndex((t) => t.id === id);
+    if (index !== -1) {
+      tasks.value[index] = { ...tasks.value[index], ...updatedData };
     }
   };
 
-  const updateTask = (id, updatedData) => {
-    const task = tasks.value.find((t) => t.id === id);
-    if (task) {
-      task.text = updatedData.text;
-      task.completed = updatedData.completed;
-    }
-  };
+  const toggleTask = (id) => {
+    const task = task.value.find((t) => t.id === id);
+    if (task) task.completed = !task.completed;
+  }
 
-  const getTaskById = (id) => {
-    return tasks.value.find((t) => t.id === id);
-  };
-
-  onMounted(() => {
-    const saved = localStorage.getItem(TASK_KEY);
-    tasks.value = saved ? JSON.parse(saved) : [];
-  });
 
   return {
     tasks,
-    newTask2,
+    newTask,
     addTask,
     deleteTask,
-    changeTask,
     updateTask,
-    getTaskById,
+    toggleTask
   };
 }
 
-// hoook solo para modal 
 // slot ver y donde implementar y inetentat implementarlo 

@@ -1,49 +1,24 @@
-import { ref, watch } from "vue";
+import { ref } from "vue";
 
 export function useModal() {
-  const isEditModalOpen = ref(false);
-  const taskToEdit = ref(null);
-  const editText = ref("");
-  const editCompleted = ref(false);
+  const isOpen = ref(false);
+  const selectedData = ref(null)
 
-  watch(
-    taskToEdit,
-    (newTask) => {
-      if (newTask) {
-        editText.value = newTask.text;
-        editCompleted.value = newTask.completed;
-      }
-    },
-    { immediate: true }
-  );
-
-  const openEditModal = (task) => {
-    taskToEdit.value = task;
-    isEditModalOpen.value = true;
+  const opeModal = (data = null) => {
+    selectedData.value = data ? { ...data } : null;
+    isOpen.value = true
   };
 
-  const closeEditModal = () => {
-    isEditModalOpen.value = false;
-    taskToEdit.value = null;
-    editText.value = "";
-    editCompleted.value = false;
+  const closeModal = () => {
+    isOpen.value = false;
+    selectedData.value = null
   };
-
-  const getEditedData = () => {
-    return {
-      id: taskToEdit.value?.id,
-      text: editText.value.trim(),
-      completed: editCompleted.value,
-    };
-  };
+  
 
   return {
-    isEditModalOpen,
-    taskToEdit,
-    editText,
-    editCompleted,
-    openEditModal,
-    closeEditModal,
-    getEditedData,
+    isOpen,
+    selectedData,
+    opeModal,
+    closeModal
   };
 }
